@@ -7,7 +7,6 @@ import numpy as np
 from PIL import Image
 from auto_label import MiniCNN, load_classes, preprocess_image
 
-# Остальной код без изменений
 def test_model_load():
     model = MiniCNN(num_classes=1000)
     assert isinstance(model, torch.nn.Module)
@@ -17,7 +16,7 @@ def test_classes_load():
     classes = load_classes("classes.json")
     assert isinstance(classes, dict)
     assert "999" in classes
-    assert classes["999"]["name"] == "неопределённый"
+    assert classes["999"]["name"] == "неопределённый_объект"  # Изменено с "неопределённый"
 
 def test_preprocess_image():
     image = Image.new("RGB", (512, 512), (255, 255, 255))
