@@ -27,6 +27,8 @@ jobs:
         run: |
           flake8 *.py
       - name: Run tests
+        env:
+          PYTHONPATH: .
         run: |
           pytest tests/ -s
         timeout-minutes: 10
