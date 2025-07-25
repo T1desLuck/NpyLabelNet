@@ -1,10 +1,13 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 import torch
 import numpy as np
-import os
 from PIL import Image
 from auto_label import MiniCNN, load_classes, preprocess_image
 
+# Остальной код без изменений
 def test_model_load():
     model = MiniCNN(num_classes=1000)
     assert isinstance(model, torch.nn.Module)
