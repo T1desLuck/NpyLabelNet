@@ -8,6 +8,7 @@ import argparse
 import json
 from tqdm import tqdm  # Добавляем tqdm
 
+
 class MiniCNN(nn.Module):
     def __init__(self, num_classes=100):  # Изменено на 100 классов
         super(MiniCNN, self).__init__()
@@ -31,6 +32,7 @@ class MiniCNN(nn.Module):
         x = self.fc2(x)
         return x
 
+
 def load_classes(json_path):
     try:
         with open(json_path, 'r') as f:
@@ -38,6 +40,7 @@ def load_classes(json_path):
         return classes
     except Exception as e:
         raise ValueError(f"Error loading classes.json: {e}")
+
 
 def preprocess_image(image):
     try:
@@ -47,6 +50,7 @@ def preprocess_image(image):
         return img_tensor
     except Exception as e:
         raise ValueError(f"Error preprocessing image: {e}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="NpyLabelNet: Generate .npy labels")
@@ -112,6 +116,7 @@ def main():
         except Exception as e:
             print(f"Error processing {img_name}: {e}")
             continue
+
 
 if __name__ == "__main__":
     main()
