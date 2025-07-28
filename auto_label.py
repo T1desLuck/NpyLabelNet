@@ -6,10 +6,10 @@ import os
 import glob
 import argparse
 import json
-
+from tqdm import tqdm  # Добавляем tqdm
 
 class MiniCNN(nn.Module):
-    def __init__(self, num_classes=1000):
+    def __init__(self, num_classes=100):  # Изменено на 100 классов
         super(MiniCNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
@@ -31,7 +31,6 @@ class MiniCNN(nn.Module):
         x = self.fc2(x)
         return x
 
-
 def load_classes(json_path):
     try:
         with open(json_path, 'r') as f:
@@ -39,7 +38,6 @@ def load_classes(json_path):
         return classes
     except Exception as e:
         raise ValueError(f"Error loading classes.json: {e}")
-
 
 def preprocess_image(image):
     try:
@@ -49,7 +47,6 @@ def preprocess_image(image):
         return img_tensor
     except Exception as e:
         raise ValueError(f"Error preprocessing image: {e}")
-
 
 def main():
     parser = argparse.ArgumentParser(description="NpyLabelNet: Generate .npy labels")
@@ -62,7 +59,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load model
-    model = MiniCNN(num_classes=1000).to(device)
+    model = MiniCNN(num_classes=100).to(device)  # Изменено на 100 классов
     try:
         model.load_state_dict(torch.load(args.model_path, map_location=device))
     except FileNotFoundError:
@@ -88,7 +85,7 @@ def main():
         print(f"No images found in {args.input}")
         return
 
-    for img_path in image_paths:
+    for img_path in tqdm(image_paths, desc="Processing images"):  # Добавлен tqdm
         img_name = os.path.basename(img_path)
         npy_path = os.path.join(args.output, img_name.replace(".jpg", ".npy").replace(".png", ".npy"))
         if os.path.exists(npy_path):
@@ -108,14 +105,13 @@ def main():
                 class_id = class_id.item()
                 max_prob = max_prob.item()
                 if max_prob < 0.5:
-                    class_id = 999  # "неопределённый"
+                    class_id = 99  # Изменено на 99 для "неопределённый_объект"
                 class_name = classes[str(class_id)]["name"]
                 np.save(npy_path, np.array([class_id], dtype=np.int64))
                 print(f"Processed {img_name}: class {class_id} ({class_name}), confidence {max_prob:.2f}")
         except Exception as e:
             print(f"Error processing {img_name}: {e}")
             continue
-
 
 if __name__ == "__main__":
     main()
