@@ -8,15 +8,15 @@ from PIL import Image
 from auto_label import MiniCNN, load_classes, preprocess_image
 
 def test_model_load():
-    model = MiniCNN(num_classes=1000)
+    model = MiniCNN(num_classes=100)  # Изменено на 100 классов
     assert isinstance(model, torch.nn.Module)
-    assert model.fc2.out_features == 1000
+    assert model.fc2.out_features == 100
 
 def test_classes_load():
     classes = load_classes("classes.json")
     assert isinstance(classes, dict)
-    assert "999" in classes
-    assert classes["999"]["name"] == "неопределённый_объект"  # Изменено с "неопределённый"
+    assert "99" in classes
+    assert classes["99"]["name"] == "неопределённый_объект"
 
 def test_preprocess_image():
     image = Image.new("RGB", (512, 512), (255, 255, 255))
@@ -25,7 +25,7 @@ def test_preprocess_image():
     assert img_tensor.dtype == torch.float32
 
 def test_npy_output(tmp_path):
-    model = MiniCNN(num_classes=5)
+    model = MiniCNN(num_classes=100)  # Изменено на 100 классов
     image = Image.new("RGB", (512, 512), (255, 255, 255))
     img_tensor = preprocess_image(image)
     with torch.no_grad():
@@ -38,4 +38,4 @@ def test_npy_output(tmp_path):
     label = np.load(npy_path)
     assert label.shape == (1,)
     assert label.dtype == np.int64
-    assert label[0] < 5
+    assert label[0] < 100
