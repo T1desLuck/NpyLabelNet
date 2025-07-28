@@ -8,6 +8,7 @@ import glob
 import argparse
 from tqdm import tqdm  # Добавляем tqdm
 
+
 class MiniCNN(nn.Module):
     def __init__(self, num_classes=100):  # Изменено на 100 классов
         super(MiniCNN, self).__init__()
@@ -30,6 +31,7 @@ class MiniCNN(nn.Module):
         x = self.dropout(self.relu(self.fc1(x)))
         x = self.fc2(x)
         return x
+
 
 class LabelDataset(Dataset):
     def __init__(self, data_path, transform=None):
@@ -62,6 +64,7 @@ class LabelDataset(Dataset):
         except Exception as e:
             print(f"Error loading {self.images[idx]}: {e}")
             return None
+
 
 def main():
     parser = argparse.ArgumentParser(description="Train NpyLabelNet")
@@ -122,6 +125,7 @@ def main():
     os.makedirs(os.path.dirname(args.save_path), exist_ok=True)
     torch.save(model.state_dict(), args.save_path)
     print(f"Final model saved to {args.save_path}")
+
 
 if __name__ == "__main__":
     main()
