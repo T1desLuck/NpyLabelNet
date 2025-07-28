@@ -6,10 +6,10 @@ from PIL import Image
 import os
 import glob
 import argparse
-
+from tqdm import tqdm  # Добавляем tqdm
 
 class MiniCNN(nn.Module):
-    def __init__(self, num_classes=1000):
+    def __init__(self, num_classes=100):  # Изменено на 100 классов
         super(MiniCNN, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
@@ -30,7 +30,6 @@ class MiniCNN(nn.Module):
         x = self.dropout(self.relu(self.fc1(x)))
         x = self.fc2(x)
         return x
-
 
 class LabelDataset(Dataset):
     def __init__(self, data_path, transform=None):
@@ -64,7 +63,6 @@ class LabelDataset(Dataset):
             print(f"Error loading {self.images[idx]}: {e}")
             return None
 
-
 def main():
     parser = argparse.ArgumentParser(description="Train NpyLabelNet")
     parser.add_argument("--data_path", type=str, required=True, help="Path to training data")
@@ -86,7 +84,7 @@ def main():
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Model
-    model = MiniCNN(num_classes=1000).to(device)
+    model = MiniCNN(num_classes=100).to(device)  # Изменено на 100 классов
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
@@ -94,7 +92,8 @@ def main():
     for epoch in range(args.epochs):
         model.train()
         running_loss = 0.0
-        for batch in dataloader:
+        # Добавляем tqdm для батчей
+        for batch in tqdm(dataloader, desc=f"Epoch {epoch+1}/{args.epochs}"):
             if batch is None:
                 continue
             images, labels = batch
@@ -107,11 +106,22 @@ def main():
             running_loss += loss.item()
         print(f"Epoch {epoch+1}/{args.epochs}, Loss: {running_loss/len(dataloader):.4f}")
 
-    # Save model
+        # Периодическое сохранение чекпоинта каждые 5 эпох
+        if (epoch + 1) % 5 == 0:
+            checkpoint_path = f"models/checkpoint_epoch_{epoch+1}.pth"
+            os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+            torch.save({
+                'epoch': epoch + 1,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': running_loss / len(dataloader),
+            }, checkpoint_path)
+            print(f"Checkpoint saved to {checkpoint_path}")
+
+    # Save final model
     os.makedirs(os.path.dirname(args.save_path), exist_ok=True)
     torch.save(model.state_dict(), args.save_path)
-    print(f"Model saved to {args.save_path}")
-
+    print(f"Final model saved to {args.save_path}")
 
 if __name__ == "__main__":
     main()
