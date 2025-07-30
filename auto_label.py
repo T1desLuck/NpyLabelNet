@@ -108,7 +108,7 @@ def main():
                 max_prob, class_id = torch.max(probabilities, dim=1)
                 class_id = class_id.item()
                 max_prob = max_prob.item()
-                if max_prob < 0.1:
+                if max_prob < 0.05:
                     class_id = 99  # Изменено на 99 для "неопределённый_объект"
                 class_name = classes[str(class_id)]["name"]
                 np.save(npy_path, np.array([class_id], dtype=np.int64))
